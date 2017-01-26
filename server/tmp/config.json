@@ -1,0 +1,6 @@
+{
+  "psql" : {
+    "dbname"  : "frog_uhm",
+    "tblname" : "query_test"
+  }
+}

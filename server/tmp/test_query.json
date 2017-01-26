@@ -1,0 +1,31 @@
+{
+  "queries" : [
+    {
+      "question"  : "Would You Answer No To This Question?",
+      "responses" : [
+        "Yes", "No"
+      ],
+      "queryID" : "query_one"
+    },
+    {
+      "question"  : "What about this question?",
+      "responses" : [
+        "Yes", "No"
+      ],
+      "queryID" : "query_two"
+    },
+    {
+      "question"  : "Are you suuuure?",
+      "responses" : [
+        "Yes", "No", "Stop Asking!"
+      ],
+      "queryID" : "query_three"
+    }
+  ],
+  "config" : {
+    "splash_interval" : 3,
+    "upload_interval" : 20,
+    "server_address"  : "http://192.168.22.44:5000/log_responses/test_query"
+  },
+  "splash" : "Thank You!"
+}
