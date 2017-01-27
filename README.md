@@ -11,7 +11,7 @@ and error-free deployment on even minimally powered devices.
 all data is temporarily moved to local storage until connectivity with the server is re-established.
 
 - A simple [flask](http://flask.pocoo.org/) server is included in the [`server/`](./server/) directory,
-which dynamically provides parameters to the elm app & recieves responses.
+which dynamically provides parameters to the elm app & logs responses.
 
 ## Usage
 
@@ -36,7 +36,7 @@ The server auto-generates queries from JSON files in the [`server/tmp/queries/`]
 Check out [`server/tmp/queries/test_query.json`](./server/tmp/queries/test_query.json)
 to see the config file which generates the above example.
 
-Query files are loaded based on filename (eg; 'myserver/queries/favorite_colors'
+Query files are loaded based on filename (eg; `http://myserver/queries/favorite_colors`
 will serve a query based on the config file `favorite_colors.json`).
 All parameters are inserted directly into the web-page at time of service,
 allowing the elm app to function autonomously once the page has been loaded.
@@ -73,4 +73,4 @@ can be read from/written to a database (probably PSQL to start with).
 
 ## Contribution
 
-Pull-requests welcome.
+Pull-requests welcome!
