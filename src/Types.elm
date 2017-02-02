@@ -8,7 +8,9 @@ import Dict
 
 -- STATE TYPES --
 -- Current page; either query page or splash page.
-type Page = QueryPage | SplashPage
+type Page = QueryPage | SplashPage | StaticPage String
+
+type Paradigm = SoftQuery | HardQuery
 
 -- Various aliases for code clarity.
 type alias Vote      = String
@@ -18,8 +20,12 @@ type alias Question  = String
 type alias QueryID   = String
 type alias Timestamp = Time.Time
 
--- Represents a single selection
-type alias Selection = ( QueryID , Vote )
+
+
+-- Represents a single selection event.
+-- Soft select indicates a multi-selection paradigm.
+-- Hard select indicates a single-selection paradigm.
+type alias Selection = ( QueryID, Vote )
 
 -- Represents a set of selections
 type alias Selections = Dict.Dict QueryID Vote
@@ -66,6 +72,7 @@ type alias Model =
   , splash     : Splash
   , selections : Selections
   , is_filled  : Bool
+  , paradigm   : Paradigm
   }
 
 -- /

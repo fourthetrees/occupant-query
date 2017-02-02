@@ -30,8 +30,9 @@ You should see something like this:
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ````
 
-An example query is available at `http://127.0.0.1:5000/queries/test_query`
+Existing queries can be found at `http://127.0.0.1:5000/queries/query_name`
 (if your flask app is running somewhere other than `127.0.0.1:5000`, then modify the url as appropriate).
+By default, there will be three example queries: `multi_query_test`, `single_query_test`, and `empty_query_test`.
 The server auto-generates queries from JSON files in the [`server/tmp/queries/`](./server/tmp/queries/) directory.
 Check out [`server/tmp/queries/test_query.json`](./server/tmp/queries/test_query.json)
 to see the config file which generates the above example.

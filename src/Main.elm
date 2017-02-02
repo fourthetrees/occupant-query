@@ -40,9 +40,20 @@ init deployment =
       , splash  = deployment.splash
       , selections = Dict.empty
       , is_filled  = False
+      , paradigm   = get_paradigm deployment
       }
   in
     (model, Cmd.none)
+
+get_paradigm : Deployment -> Paradigm
+get_paradigm deployment =
+  let
+    qcount = List.length deployment.queries
+  in
+    if qcount > 1 then
+      SoftQuery
+    else
+      HardQuery
 
 -- /
 
@@ -103,6 +114,9 @@ subscriptions model =
           , Utils.subscribe Resume splash_interval
           ]
 
+    StaticPage ( _ ) ->
+      Sub.none
+
 -- /
 
 
@@ -117,6 +131,9 @@ view model =
       Utils.build_queries model
 
     SplashPage ->
-      Utils.build_splash model.splash
+      Utils.build_txt_page model.splash
+
+    StaticPage txt ->
+      Utils.build_txt_page txt
 
 -- /

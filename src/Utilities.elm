@@ -65,9 +65,19 @@ handle_submission model =
       , is_filled  = False }
     , timestamp selections )
 
--- Record a selection event.
+-- Pass selection events to their appropriate handlers.
 handle_selection : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
 handle_selection model queryID vote =
+  case model.paradigm of
+    SoftQuery ->
+      soft_select model queryID vote
+    HardQuery ->
+      hard_select model queryID vote
+
+-- Record a soft selection event.
+-- Used for multiple-selection queries.
+soft_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
+soft_select model queryID vote =
   let
     queries    = model.queries
     selections = Dict.insert
@@ -78,6 +88,19 @@ handle_selection model queryID vote =
     ( { model | selections = selections
       , is_filled  = is_filled selections queries }
     , Cmd.none )
+
+-- Record a hard selection event.
+-- Used for single-selection queries.
+hard_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
+hard_select model queryID vote =
+  let
+    selections = Dict.insert
+      queryID
+      vote
+      model.selections
+  in
+    ( { model | selections = selections }
+    , send_signal [ Submit ] )
 
 -- Save an entry to the archive & trigger and upload attempt.
 handle_save : Model -> Entry -> ( Model, Cmd Msg )
@@ -188,9 +211,33 @@ subscribe msg seconds =
 
 build_queries : Model -> Html Msg
 build_queries model =
+  case model.paradigm of
+    SoftQuery ->
+      build_many_queries model
+    HardQuery ->
+      build_single_query model
+
+build_single_query : Model -> Html Msg
+build_single_query model =
+  let
+    qhead = List.head model.queries
+  in
+    case qhead of
+      Just query ->
+        div
+          [ classList [ ( "query-page", True )] ]
+          [ div [] [ make_query model query ]   ]
+      Nothing ->
+        build_txt_page "Query Data Unavailable"
+
+
+-- CONTINUE HERE... NEED TO HANDLE SINGLE QUERY CASE YO!
+
+build_many_queries : Model -> Html Msg
+build_many_queries model =
   let
     questions =
-      div [] ( List.map ( mkQuery model ) model.queries )
+      div [] ( List.map ( make_query model ) model.queries )
     submit =
       div [ classList [ ( "submit", True ) ] ]
         [ button
@@ -199,34 +246,37 @@ build_queries model =
             , classList [ ( "submit-button", True ) ] ]
             [ text "Submit" ] ]
   in
-    div [] [ questions , submit ]
+    div
+      [ classList [ ( "query-page", True )] ]
+      [ questions , submit ]
 
 -- Generates a div containing a question & its response buttons.
-mkQuery : Model -> Query -> Html Msg
-mkQuery model query =
+make_query : Model -> Query -> Html Msg
+make_query model query =
   let
     question  = query.question
     responses = query.responses
     queryID   = query.queryID
   in
-    div
-      [ classList [ ( "query", True ) ] ]
-      [ h1  [classList [ ( "query-txt", True ) ]] [ text question ]
+    div [ classList [ ( "query", True ) ] ]
+      [ h1  [ classList [ ( "query-txt", True ) ] ] [ text question ]
       , div
         [ classList [ ( "responses", True ) ] ]
-        ( List.map ( mkSelector model queryID ) responses )
+        ( List.map ( make_selector model queryID ) responses )
       ]
 
 -- Generates a selection button.
-mkSelector : Model -> QueryID -> Vote -> Html Msg
-mkSelector model queryID vote =
+make_selector : Model -> QueryID -> Vote -> Html Msg
+make_selector model queryID vote =
   let
-    selected = is_selected model queryID vote
+    selected = is_selected  model queryID vote
   in
     button
       [ onClick ( Select ( queryID, vote ) )
       , classList [ ( "selected", selected ) ] ]
       [ text vote ]
+
+
 
 
 -- Check if a button instance is currently selected.
@@ -245,10 +295,10 @@ is_selected model queryID vote =
 
 
 -- Build splash page.
-build_splash : Splash -> Html Msg
-build_splash splash =
+build_txt_page : String -> Html Msg
+build_txt_page txt =
   div []
-    [ h1 [] [ text splash ] ]
+    [ h1 [] [ text txt ] ]
 
 
 

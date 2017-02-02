@@ -1,0 +1,9 @@
+{
+  "queries" : [],
+  "config" : {
+    "splash_interval" : 3,
+    "upload_interval" : 20,
+    "server_address"  : "http://127.0.0.1:5000/log_responses/test_query"
+  },
+  "splash" : "Thank You!"
+}
