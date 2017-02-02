@@ -6,6 +6,20 @@
         "Yes", "No"
       ],
       "queryID" : "query_one"
+    },
+    {
+      "question"  : "What about this question?",
+      "responses" : [
+        "Yes", "No"
+      ],
+      "queryID" : "query_two"
+    },
+    {
+      "question"  : "Are you suuuure?",
+      "responses" : [
+        "Yes", "No", "Stop Asking!"
+      ],
+      "queryID" : "query_three"
     }
   ],
   "config" : {
@@ -13,5 +27,6 @@
     "upload_interval" : 20,
     "server_address"  : "http://127.0.0.1:5000/log_responses/test_query"
   },
-  "splash" : "Thank You!"
+  "splash" : "Thank You!",
+  "hard"   : true
 }

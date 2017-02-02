@@ -17,6 +17,19 @@ import Time
 
 -- MISC --
 
+-- Rotate a list forward by one.
+rotate_list : List a -> List a
+rotate_list list =
+  let
+    lhead = case ( List.head list ) of
+      Just h  -> [ h ]
+      Nothing -> []
+    ltail = case ( List.tail list ) of
+      Just t  ->  t
+      Nothing -> []
+  in
+    ltail ++ lhead
+
 -- Send any number of Messages as Cmg Msg type.
 send_signal : List Msg -> Cmd Msg
 send_signal messages =
@@ -94,12 +107,14 @@ soft_select model queryID vote =
 hard_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
 hard_select model queryID vote =
   let
+    queries    = model.queries
     selections = Dict.insert
       queryID
       vote
       model.selections
   in
-    ( { model | selections = selections }
+    ( { model | selections = selections
+      , queries = rotate_list queries }
     , send_signal [ Submit ] )
 
 -- Save an entry to the archive & trigger and upload attempt.

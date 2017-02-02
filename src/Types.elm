@@ -56,10 +56,12 @@ type alias Config =
   , server_address    : Server
   }
 
+-- Represents the arguments passed to the app at initialization.
 type alias Deployment =
   { queries : Queries
   , config  : Config
   , splash  : Splash
+  , hard    : Bool
   }
 
 -- Represents the state of the application at a given instance.

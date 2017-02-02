@@ -45,15 +45,17 @@ init deployment =
   in
     (model, Cmd.none)
 
+
 get_paradigm : Deployment -> Paradigm
 get_paradigm deployment =
   let
     qcount = List.length deployment.queries
+    hard   = Debug.log "hard: " deployment.hard
   in
-    if qcount > 1 then
-      SoftQuery
-    else
+    if hard || qcount <= 1 then
       HardQuery
+    else
+      SoftQuery
 
 -- /
 
