@@ -3,7 +3,7 @@
   "config" : {
     "splash_interval" : 3,
     "upload_interval" : 20,
-    "server_address"  : "../callback/empty_query_test"
+    "server_address"  : "../callback/default"
   },
   "splash" : "Thank You!",
   "hard"   : true

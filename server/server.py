@@ -6,6 +6,8 @@ from flask import render_template
 from flask_cors import cross_origin
 import os.path as path
 import src.psql as psql
+import src.utils as utils
+import src.queries as queries
 import json
 
 
@@ -18,41 +20,31 @@ def landing():
     return 'hello world'
 
 # Primary data-logging route.
-@app.route('/log_responses/<query>', methods = ['GET','POST'])
+@app.route('/callback/<query>', methods = ['GET','POST'])
 @cross_origin()
 def log_responses(query):
     if request.method == 'POST':
         jdata = request.get_json(force=True)
         store_values(query,jdata)
-        rsp = Response( response = json.dumps({"hello": "world"}),
-                        mimetype = 'application/json',
-                        status   = 200
-                        )
+        rsp = utils.json_response({'hello':'world'})
         return rsp
     elif request.method == 'GET':
-        data = get_deployment(query)
-        rsp = Response(response=data, status=200,
-                mimetype='application/json')
+        data = queries.get_config(query)
+        rsp  = utils.json_response(data)
+        return rsp
+    else:
+        rsp = Response(status=400)
         return rsp
 
 # Primary query-serving route.
 @app.route('/queries/<query>', methods = ['GET'])
-def queries(query):
-    qfile = 'tmp/queries/{}.json'.format(query)
-    if not path.isfile(qfile) or query == 'config':
-        raise Exception('no query named {}.'.format(query))
-    with open(qfile) as fp:
-        seed = json.load(fp)
+def query_generator(query):
+    seed = queries.get_config(query)
     return render_template('main.html',seed=seed)
 
 # Storage function -- overwrite as appropriate.
 def store_values(query,data):
     print('Values Recieved For {}'.format(query))
     print(json.dumps(data,indent=2))
-    #with open('tmp/config/psql_config.json') as fp:
-    #    config = json.load(fp)['psql']
-    #psql.push(query,data,config['dbname'],config['tblname'])
-
-# Placeholder deployment update function -- feature not yet implimented.
-def get_deployment(deployment):
-    return json.dumps({"test":"someTest"})
+    #config = psql.get_config()
+    #psql.push(query,data,**config)

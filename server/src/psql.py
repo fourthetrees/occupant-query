@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from collections import namedtuple
 import psycopg2 as sql
+import json
 # Accept data of form {sensor_id:[(datetime,value),...],...}
 # Return data of form [(sensor_id,datetime,value),...]
 Row = namedtuple('row',['question','response','timestamp'])
@@ -25,3 +26,8 @@ def push(question,data,dbname,tblname):
             except sql.IntegrityError:
                 con.rollback()
     con.close()
+
+def get_config():
+    with open('tmp/config/psql_config.json') as fp:
+        config = json.load(fp)
+    return config
