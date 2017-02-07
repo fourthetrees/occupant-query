@@ -37,9 +37,9 @@ def log_responses(query):
         return rsp
 
 # Primary query-serving route.
-@app.route('/queries/<query>', methods = ['GET'])
-def query_generator(query):
-    seed = queries.get_config(query)
+@app.route('/deployments/<dname>', methods = ['GET'])
+def query_generator(dname):
+    seed = queries.get_deployment(dname)
     return render_template('main.html',seed=seed)
 
 # Storage function -- overwrite as appropriate.

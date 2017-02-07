@@ -37,7 +37,6 @@ init deployment =
       , config  = deployment.config
       , archive = []
       , uploads = []
-      , splash  = deployment.splash
       , selections = Dict.empty
       , is_filled  = False
       , paradigm   = get_paradigm deployment
@@ -47,12 +46,12 @@ init deployment =
 
 
 get_paradigm : Deployment -> Paradigm
-get_paradigm deployment =
+get_paradigm { queries, config } =
   let
-    qcount = List.length deployment.queries
-    hard   = Debug.log "hard: " deployment.hard
+    qcount = List.length queries
+    qhard  = Debug.log "hard: " config.hard_query
   in
-    if hard || qcount <= 1 then
+    if qhard || qcount <= 1 then
       HardQuery
     else
       SoftQuery
@@ -133,7 +132,7 @@ view model =
       Utils.build_queries model
 
     SplashPage ->
-      Utils.build_txt_page model.splash
+      Utils.build_txt_page model.config.splash_text
 
     StaticPage txt ->
       Utils.build_txt_page txt

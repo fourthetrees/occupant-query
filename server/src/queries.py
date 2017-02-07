@@ -11,25 +11,29 @@ import json
 
 # Called to get parameters for a given query.
 # Merges defaults with any values found for qname.
-def get_config(qname):
-    config = get_defaults()
-    qvalues  = get_query(qname)
-    config.update(qvalues)
-    return config
+def get_deployment(dname):
+    config = get_config()
+    qdata  = get_queries(dname)
+    deployment = {}
+    deployment['config']  = config
+    deployment['queries'] = qdata['queries']
+    if 'config' in qdata:
+        deployment['config'].update(qdata['config'])
+    return deployment
 
 # Attempts to find specific query file.
 # Returns an empty dict if no file found.
-def get_query(qname):
-    qfile = 'tmp/queries/{}.json'.format(qname)
+def get_queries(dname):
+    qfile = 'tmp/queries/{}.json'.format(dname)
     try:
         with open(qfile) as fp:
             qdata = json.load(fp)
-    except: qdata = {}
+    except: qdata = {'queries':[]}
     return qdata
 
 # Loads default query values.
-def get_defaults():
-    dfile = 'tmp/config/query_defaults.json'
+def get_config():
+    dfile = 'tmp/config/query_config.json'
     with open(dfile) as fp:
         ddata = json.load(fp)
     return ddata

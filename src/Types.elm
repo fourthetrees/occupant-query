@@ -51,17 +51,17 @@ type alias Queries = List Query
 
 -- Represents semi-perminant configuration options.
 type alias Config =
-  { splash_interval   : Float
-  , upload_interval   : Float
-  , server_address    : Server
+  { splash_interval : Float
+  , upload_interval : Float
+  , server_address  : Server
+  , splash_text     : Splash
+  , hard_query      : Bool
   }
 
 -- Represents the arguments passed to the app at initialization.
 type alias Deployment =
   { queries : Queries
   , config  : Config
-  , splash  : Splash
-  , hard    : Bool
   }
 
 -- Represents the state of the application at a given instance.
@@ -71,7 +71,6 @@ type alias Model =
   , config     : Config
   , archive    : Archive
   , uploads    : Archive
-  , splash     : Splash
   , selections : Selections
   , is_filled  : Bool
   , paradigm   : Paradigm
