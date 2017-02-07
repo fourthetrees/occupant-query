@@ -33,7 +33,7 @@ def get_queries(dname):
 
 # Loads default query values.
 def get_config():
-    dfile = 'tmp/config/query_config.json'
+    dfile = 'tmp/config/deployment_defaults.json'
     with open(dfile) as fp:
         ddata = json.load(fp)
     return ddata

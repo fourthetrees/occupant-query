@@ -1,6 +1,6 @@
 # occupant-query
 
-A simple elm app for displaying auto-generated queries on web kiosks.
+A simple elm app for displaying auto-generated queries on web kiosks and recording responses.
 
 ## Features
 
@@ -8,14 +8,19 @@ A simple elm app for displaying auto-generated queries on web kiosks.
 and error-free deployment on even minimally powered devices.
 
 - This app continues to function normally if/when the hosting device loses internet connectivity;
-all data is temporarily moved to local storage until connectivity with the server is re-established.
+all data is held in-app until connectivity with the server is re-established.
+
+- Questions can be presented individually, or as forms.  Rotating lists of questions
+can be stored in-app, allowing continued rotation during the offline operation.
 
 - A simple [flask](http://flask.pocoo.org/) server is included in the [`server/`](./server/) directory,
-which dynamically provides parameters to the elm app & logs responses.
+which dynamically provides parameters to the elm app & logs responses.  This server's functionality
+is easy to integrate into existing flask codebases, and allows for drop-in insertion of custom code for
+retrieving configuration options and storing response values.
 
 ## Usage
 
-To compile & launch:
+### Compile & Launch:
 
 ````
 $ elm-make src/Main.elm --output=server/static/main.js
@@ -30,48 +35,78 @@ You should see something like this:
  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ````
 
-Existing queries can be found at `http://127.0.0.1:5000/queries/query_name`
-(if your flask app is running somewhere other than `127.0.0.1:5000`, then modify the url as appropriate).
-By default, there will be three example queries: `multi_query_test`, `single_query_test`, and `empty_query_test`.
-The server auto-generates queries from JSON files in the [`server/tmp/queries/`](./server/tmp/queries/) directory.
-Check out [`server/tmp/queries/test_query.json`](./server/tmp/queries/test_query.json)
-to see the config file which generates the above example.
+Examples can be found at ['127.0.0.1:5000/deployments/example_form'](http://127.0.0.1:5000/deployments/example_form),
+and [`127.0.0.1:5000/deployments/example_rotating`](http://127.0.0.1:5000/deployments/example_rotating).
+These examples are generated from `json` encoded files located in [`server/tmp/queries/`](./server/tmp/queries).
 
-Query files are loaded based on filename (eg; `http://myserver/queries/favorite_colors`
-will serve a query based on the config file `favorite_colors.json`).
-All parameters are inserted directly into the web-page at time of service,
-allowing the elm app to function autonomously once the page has been loaded.
+### Adding Your Own Content:
 
-The elm app dynamically generates a number of html classes
-which can be used as handles within [`server/static/style.css`](./server/static/style.css).
-This makes it easy to modify the appearance of queries without any re-compilation.
+The quickest way to start adding your own content is to add new `json` files
+to [`server/tmp/queries/`](./server/tmp/queries).  To this end, take a moment
+to familiarize yourself with the terms and structures used for content encoding:
 
-## Ongoing/Future Development
+A *query* is a unit consisting of a question, a list of responses,
+and a question id.  Queries are encoded as `json` objects like so:
+````json
+{
+  "question"  : "...",
+  "responses" : [ "..." ],
+  "queryID"   : "..."
+}
+````
+The `question` field is just a string containing the text of the question
+that is to be displayed.  The `responses` field is a list of strings which
+will be rendered as the possible responses to the question.  The `queryID`
+field is a string which can be any unique identifier.  When responses
+are recorded, they are paired with their query id in order to indicate
+which query they correspond to.
 
-### Elm-Side Development:
+A *configuration* is a set of parameters which tell the elm app how to behave,
+as well as special messages to display to the user (e.g.; the `splash_text` field
+indicates what text to display when a user submits a response).  All configuration
+options have default values, and as such are optional.  The default values
+live in [`server/tmp/config/deployment_defaults.json`](./server/tmp/config/deployment_defaults.json).
+We override the default value of a configuration option with a `config`
+field.  Here is an example of how to change the `server_address` option
+s.t. responses are logged back to the server under the handle `foo`:
+````json
+"config" : {
+  "server_address"  : "../callback/foo"
+}
+````
 
-- Modularization to allow for greater ease of modification, re-use, etc...
+The *deployment* is the final data structure that gets passed to the elm app by
+the server.  It consists of a list of queries and a fully populated `config`.
+Since flask will automatically populate any unfilled `config` fields from
+the defaults file, a deployment *file* is only required to implement a `queries`
+field:
+````javascript
+{
+  "queries" : [ /*list of queries */ ],
+  "config"  : { /*this is optional*/ }
+}
+````
+Technically, a `queries` field *can* be an empty list.  While this may seem
+rather counter-productive to allow, one of the design goals of this application
+is to support the assignment of unique deployment URLs for each web kiosk
+that displays it.  Because of this, it is necessary that the application gracefully
+handle the situation where there are no queries which currently need displaying.
 
-- Dynamic handling of the special case of single-question pages.
+## Development
 
-- Various modifications to support embedding within larger web pages/apps
-(eg; more explicit html classing to prevent css collisions).
+### Status
 
-- Ability to change any configuration/questions based upon instructions from server.
+Upcoming: An update functionality allowing the app to
+request updates to its current deployment on some regular interval.
+This may possibly include the addition of some kind of scheduling feature,
+whereby the app may be able to pre-load a new deployment, and switch over
+at some pre-determined time.
 
+Potential: Move away from css stylesheets to a dynamically generated css
+implementation.  All things being equal, it is preferable to keep appearance
+separate from logic.  That being said, there is a very real benefit to being
+able to exercise control of appearance directly from the deployment object.
 
-### Server-Side Development:
-
-- Default configuration options for queries
-(eg; if no upload interval is given, serve app with some default value inserted)
-
-- Database integration s.t. query config values, as well as response logs,
-can be read from/written to a database (probably PSQL to start with).
-
-- Friendlier error pages in the event of improper urls.
-
-- Ability to server new configuration values to an active app instance.
-
-## Contribution
+### Contribution
 
 Pull-requests welcome!

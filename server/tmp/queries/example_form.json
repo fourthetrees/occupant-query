@@ -23,6 +23,7 @@
     }
   ],
   "config" : {
-    "server_address"  : "../callback/single_query_test"
+    "server_address"  : "../callback/example_form",
+    "hard_query"      : false
   }
 }

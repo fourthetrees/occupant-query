@@ -1,6 +1,0 @@
-{
-  "queries" : [],
-  "config" : {
-    "server_address"  : "../callback/empty_query_test"
-  }
-}

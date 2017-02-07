@@ -23,6 +23,7 @@
     }
   ],
   "config" : {
-    "server_address"  : "../callback/multi_query_test"
+    "server_address"  : "../callback/example_rotating",
+    "hard_query"      : true
   }
 }
