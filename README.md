@@ -94,7 +94,7 @@ handle the situation where there are no queries which currently need displaying.
 
 ## Development
 
-### Current
+### Current:
 
 Work is currently focusing around establishing an optional database
 backend for the server.  A separate project is currently underway to
@@ -110,7 +110,7 @@ the full database and GUI.  This will allow individuals to easily
 spin up a small occupant-query server on a raspberry-pi or other similarly
 inexpensive IOT device if desired.
 
-### Upcoming
+### Upcoming:
 
 An update functionality allowing the app to
 request and updated deployment on some regular interval.
@@ -119,13 +119,13 @@ whereby the app may be able to pre-load a new deployment, and switch over
 at some pre-determined time.
 
 
-### Potential
+### Potential:
 
 Move away from css stylesheets to a dynamically generated css
 implementation.  All things being equal, it is preferable to keep appearance
 separate from logic.  That being said, there is a very real benefit to being
 able to exercise control of appearance directly from the deployment object.
 
-### Contribution
+### Contribution:
 
 Pull-requests welcome!
