@@ -94,15 +94,34 @@ handle the situation where there are no queries which currently need displaying.
 
 ## Development
 
-### Status
+### Current
 
-Upcoming: An update functionality allowing the app to
-request updates to its current deployment on some regular interval.
+Work is currently focusing around establishing an optional database
+backend for the server.  A separate project is currently underway to
+produce an ergonomic graphical interface by which experimenters may be
+able to add their own deployments and questions to a database,
+thereby removing any technical barriers to usage of this tool.
+Further information on the proposed database model can be found
+in [`doc/database.md`](./doc/database.md).  The long-term plan
+is to allow for spinning up of a 'light' version of the server, hosting no
+graphical administration interface and configured only through
+JSON encoded files, and a a 'full' version of the server which implements
+the full database and GUI.  This will allow individuals to easily
+spin up a small occupant-query server on a raspberry-pi or other similarly
+inexpensive IOT device if desired.
+
+### Upcoming
+
+An update functionality allowing the app to
+request and updated deployment on some regular interval.
 This may possibly include the addition of some kind of scheduling feature,
 whereby the app may be able to pre-load a new deployment, and switch over
 at some pre-determined time.
 
-Potential: Move away from css stylesheets to a dynamically generated css
+
+### Potential
+
+Move away from css stylesheets to a dynamically generated css
 implementation.  All things being equal, it is preferable to keep appearance
 separate from logic.  That being said, there is a very real benefit to being
 able to exercise control of appearance directly from the deployment object.

@@ -7,9 +7,11 @@ be used for the occupant-query server.
 
 The occupant-query server needs to be able to effectively model three
 main relationships:
+
 - `URL <-> Query ID(s)`
 - `Query ID <-> Question Text`
 - `Query ID <-> Response(s)`
+
 Because we would like to be able to change which question(s) correspond
 to which URLs, as well as be able to modify question details atomically,
 it is important that URLs and questions be functionally separate entities.
@@ -33,13 +35,13 @@ column, with the unique key being the `url` to `query_id` mapping.
 
 
 The `questions` table should consist of a `query_id` column and a
-`question_txt` column, with the `query_id` acting as the unique key.
+`question_text` column, with the `query_id` acting as the unique key.
 
-|  query_id   |  question_txt  |
+|  query_id   |  question_text |
 | ----------- | -------------- |
 | temp_query  | "How Hot?"     |
 | light_query | "How Bright?"  |
-| ...         |                |
+| ...         | ...            |
 
 Finally, the `responses` table should consist of a `query_id` column,
 a `response_text` column, and a `response_value` column, with the
