@@ -2,6 +2,7 @@ module Utilities exposing (..)
 
 -- LOCAL DEPENDENCIES --
 import Types exposing (..)
+import Sugar exposing (..)
 
 -- ELM-PACKAGE DEPENDENCIES --
 import Html exposing (..)
@@ -207,7 +208,71 @@ handle_response model comms =
             uploads = []       }
           , Cmd.none )
 
+-- Updates Deplyoment from JSON encoded String.
+update_deployment : Deployment -> String -> Deployment
+update_deployment deployment json =
+  let
+    jparse = (\ d s ->
+      Result.toMaybe ( JD.decodeString d s )
+      )
+    src = jparse ( JD.dict JD.string ) json
+    new_queries = src
+      ||~ Dict.get "queries"
+      ||~ jparse ( JD.list JD.string )
+      |~ List.filterMap decode_query
+    new_config = src
+      ||~ Dict.get "config"
+      ||~ decode_config
+  in
+    new_queries
+      |~ Deployment
+      ||~ (\ d -> new_config |~ d )
+      |>  (\ d -> d /~ deployment )
+
+-- Attempts to decode a JSON string into a Query object.
+decode_query : String -> Maybe Query
+decode_query json =
+  let
+    src = Result.toMaybe ( JD.decodeString ( JD.dict JD.string ) json )
+  in
+    src
+      |~ (\ s -> ( s, Query ) )
+      ||~ parse "question" JD.string
+      ||~ parse "responses" ( JD.list JD.string )
+      ||~ parse "queryID"  JD.string
+      |~ (\ ( s, c ) -> c )
+
+-- Attempts to decode a JSON string into a Config object
+decode_config : String -> Maybe Config
+decode_config json =
+  let
+    src = Result.toMaybe ( JD.decodeString ( JD.dict JD.string ) json )
+  in
+    src
+      |~ (\ s -> ( s, Config ) )
+      ||~ parse "splash_interval" JD.float
+      ||~ parse "uplaod_interval" JD.float
+      ||~ parse "server_address"  JD.string
+      ||~ parse "splash_text"     JD.string
+      ||~ parse "hard_query"      JD.bool
+      |~ (\ ( s, c ) -> c )
+
+
+-- Key -> Decoder -> ( Source, Accumulator ) -> Maybe ( Source, Accumulator )
+parse : String -> JD.Decoder a -> ( Dict.Dict String String , ( a -> b ) ) -> Maybe ( Dict.Dict String String , b )
+parse key decoder ( source , collector ) =
+  let
+    -- ( decoder -> value ) -> string -> maybe value
+    decode : JD.Decoder a -> String -> Maybe a
+    decode = (\ d v -> Result.toMaybe ( JD.decodeString d v ) )
+  in
+    Dict.get key source
+    ||~ decode decoder
+    |~ collector
+    |~ (\ c -> ( source , c ) )
+
 -- /
+
 
 -- SUBSCRIPTIONS --
 
