@@ -19,7 +19,7 @@ type alias Server    = String
 type alias Question  = String
 type alias QueryID   = String
 type alias Timestamp = Time.Time
-
+type alias JDict     = Dict.Dict String String
 
 
 -- Represents a single selection event.

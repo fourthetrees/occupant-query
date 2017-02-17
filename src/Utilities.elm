@@ -208,6 +208,11 @@ handle_response model comms =
             uploads = []       }
           , Cmd.none )
 
+
+-- TODO
+-- update_model : Model -> Dict.Dict String String -> Model
+
+
 -- Updates Deplyoment from JSON encoded String.
 update_deployment : Deployment -> String -> Deployment
 update_deployment deployment json =
@@ -227,7 +232,7 @@ update_deployment deployment json =
     new_queries
       |~ Deployment
       ||~ (\ d -> new_config |~ d )
-      |>  (\ d -> d /~ deployment )
+      /~ deployment
 
 -- Attempts to decode a JSON string into a Query object.
 decode_query : String -> Maybe Query
@@ -256,7 +261,6 @@ decode_config json =
       ||~ parse "splash_text"     JD.string
       ||~ parse "hard_query"      JD.bool
       |~ (\ ( s, c ) -> c )
-
 
 -- Key -> Decoder -> ( Source, Accumulator ) -> Maybe ( Source, Accumulator )
 parse : String -> JD.Decoder a -> ( Dict.Dict String String , ( a -> b ) ) -> Maybe ( Dict.Dict String String , b )
