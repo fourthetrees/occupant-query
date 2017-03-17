@@ -24,6 +24,6 @@
   ],
   "config" : {
     "server_address"  : "../callback/example_form",
-    "hard_query"      : false
+    "kiosk_mode"      : false
   }
 }

@@ -83,15 +83,15 @@ handle_submission model =
 handle_selection : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
 handle_selection model queryID vote =
   case model.paradigm of
-    SoftQuery ->
-      soft_select model queryID vote
-    HardQuery ->
-      hard_select model queryID vote
+    Form ->
+      form_select model queryID vote
+    Kiosk ->
+      kiosk_select model queryID vote
 
--- Record a soft selection event.
+-- Record a form selection event.
 -- Used for multiple-selection queries.
-soft_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
-soft_select model queryID vote =
+form_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
+form_select model queryID vote =
   let
     queries    = model.queries
     selections = Dict.insert
@@ -103,10 +103,10 @@ soft_select model queryID vote =
       , is_filled  = is_filled selections queries }
     , Cmd.none )
 
--- Record a hard selection event.
+-- Record a kiosk selection event.
 -- Used for single-selection queries.
-hard_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
-hard_select model queryID vote =
+kiosk_select : Model -> QueryID -> Vote -> ( Model, Cmd Msg )
+kiosk_select model queryID vote =
   let
     queries    = model.queries
     selections = Dict.insert
@@ -296,9 +296,9 @@ subscribe msg seconds =
 build_queries : Model -> Html Msg
 build_queries model =
   case model.paradigm of
-    SoftQuery ->
+    Form ->
       build_many_queries model
-    HardQuery ->
+    Kiosk ->
       build_single_query model
 
 build_single_query : Model -> Html Msg

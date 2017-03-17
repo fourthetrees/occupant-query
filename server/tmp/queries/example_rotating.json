@@ -24,6 +24,6 @@
   ],
   "config" : {
     "server_address"  : "../callback/example_rotating",
-    "hard_query"      : true
+    "kiosk_mode"      : true
   }
 }

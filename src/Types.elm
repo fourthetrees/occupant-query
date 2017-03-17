@@ -10,7 +10,7 @@ import Dict
 -- Current page; either query page or splash page.
 type Page = QueryPage | SplashPage | StaticPage String
 
-type Paradigm = SoftQuery | HardQuery
+type Paradigm = Form | Kiosk
 
 -- Various aliases for code clarity.
 type alias Vote      = String
@@ -23,8 +23,8 @@ type alias JDict     = Dict.Dict String String
 
 
 -- Represents a single selection event.
--- Soft select indicates a multi-selection paradigm.
--- Hard select indicates a single-selection paradigm.
+-- Form select indicates a multi-selection paradigm.
+-- Kiosk select indicates a single-selection paradigm.
 type alias Selection = ( QueryID, Vote )
 
 -- Represents a set of selections
@@ -55,7 +55,7 @@ type alias Config =
   , upload_interval : Float
   , server_address  : Server
   , splash_text     : Splash
-  , hard_query      : Bool
+  , kiosk_mode      : Bool
   }
 
 -- Represents the arguments passed to the app at initialization.

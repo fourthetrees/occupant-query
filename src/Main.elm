@@ -49,12 +49,12 @@ get_paradigm : Deployment -> Paradigm
 get_paradigm { queries, config } =
   let
     qcount = List.length queries
-    qhard  = Debug.log "hard: " config.hard_query
+    kbool  = Debug.log "kisok mode: " config.kiosk_mode
   in
-    if qhard || qcount <= 1 then
-      HardQuery
+    if kbool || qcount <= 1 then
+      Kiosk
     else
-      SoftQuery
+      Form
 
 -- /
 
