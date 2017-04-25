@@ -1,0 +1,45 @@
+# Example Survey File
+
+# the url of the survey is determined by the file-name.
+
+# the id of the survey, and wether it is currently
+# active, is declared in `settings`.
+[settings]
+is-active = true
+id = 123
+
+
+# any number of questions may be declared, each
+# containing any number of possible responses.
+# HINT: Its best to have at least two ;)
+[[questions]]
+id = 1
+txt = "where?"
+responses = [
+  { txt = "foo", id = 0 },
+  { txt = "bar", id = 1 }
+]
+
+[[questions]]
+id = 2
+txt = "when?"
+responses = [
+  { txt = "foo", id = 0 },
+  { txt = "bar", id = 1 }
+]
+
+[[questions]]
+id = 3
+txt = "why?"
+responses = [
+  { txt = "foo", id = 0 },
+  { txt = "bar", id = 1 }
+]
+
+[[questions]]
+id = 4
+txt = "how?"
+responses = [
+  { txt = "foo", id = 0 },
+  { txt = "bar", id = 1 }
+]

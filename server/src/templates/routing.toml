@@ -1,0 +1,10 @@
+# the `deployment-routing` file informs flask of the currently
+# active URLs, and what survey configurations they point to.
+
+[settings]
+is-active = true
+static-routing = true # assume filename == uri.
+
+[routing]
+some-url = "some-file-name"
+# ...

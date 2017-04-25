@@ -2,6 +2,7 @@
 from collections import namedtuple
 import psycopg2 as sql
 import json
+import toml
 # Accept data of form {sensor_id:[(datetime,value),...],...}
 # Return data of form [(sensor_id,datetime,value),...]
 Row = namedtuple('row',['question','response','timestamp'])
@@ -31,3 +32,6 @@ def get_config():
     with open('tmp/config/psql_config.json') as fp:
         config = json.load(fp)
     return config
+
+def update_deployments():
+    config = get_config()
