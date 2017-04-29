@@ -50,7 +50,7 @@ time-stamping responses locally while the connection to the server is
 unavailable.  This further empowers to researcher to make correlations
 between response patterns and environmental building factors.
 
-## Technology
+## Software Technology
 
 This project is designed to leverage modern web technologies to
 provide the best data possible for researchers to use during building
@@ -89,3 +89,40 @@ JavaScript directly.  For our particular purposes, speed
 and reliability translate into two important benefits: more users being
 willing to participate in our research, and computational demand on our
 building systems (computational efficiency equals power efficiency).
+
+## Hardware Selection
+
+For our initial use of this project, the Nexus 7 tablet was selected
+as the base hardware with which to construct the Kiosk.  Most modern
+tablets can be set up as web kiosks, but the Nexus 7 stood out as an
+ideal candidate due to a number of important qualities:
+
+- Reliability: The Nexus 7 has a reputation as being one of the most
+well-constructed and reliable Android tablets.
+
+- Security:  The Nexus line is developed by Google (maker of the Android
+operating system) directly, unlike most Android devices, which are
+developed my third parties.  As such, Nexus devices receive immediate
+security updates as they become available, while most Android devices
+get security updates when, or if, their manufacturer ports the updates
+to their hardware.
+
+- Cost: The Nexus 7 was initially developed in 2012, and as such can be
+purchased quite cheaply compared to newer tablets.  Because care was taken
+to ensure that the web-application had a low computational overhead,
+it is no issue to run it on older hardware.
+
+- Flexibility:  Android in general, and the Nexus line in particular, are
+easier to customize and modify than existing alternatives.  As such, we
+do not limit ourselves with our initial purchasing choices by selecting
+this device.  In fact, one can even easily boot the tablet with a full
+linux installation if future projects require functionality beyond that
+which is available on a mobile operating system.
+
+## Ongoing Feature Development
+
+We are currently in the process of gathering feedback from fellow researchers
+about the features which would make this project more useful to their work.
+One such feature, which will be added soon, is the ability to restrict different
+questions to different time-periods, such that a researcher might ensure that
+participants are answering question during appropriate times.
