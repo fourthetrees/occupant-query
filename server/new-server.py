@@ -18,19 +18,30 @@ def landing():
 @app.route('/callback/<callback>', methods = ['GET','POST'])
 @cross_origin()
 def callback(callback):
-    print("callback: ",callback)
-    print("method: ",flask.request.method)
+    print('callback: ',callback)
     return flask.Response(status=200)
 
 
-# placeholder survey route.
-@app.route('/surveys/<survey>', methods = ['GET'])
+# basic survey route... assumes GETs are from users,
+# and POSTs are apps requesting survey specs...
+@app.route('/surveys/<survey>', methods = ['GET','POST'])
 def surveys(survey):
-    print("survey: ",survey)
+    print('survey-request: ',survey)
+    # if we are talking to a normal user, just send `survey.html`.
+    if flask.request.method == 'GET':
+        return flask.current_app.send_static_file('survey.html')
+    # if we are talking to an app, send the survey spec it wants.
+    else:
+        return handle_spec_request(survey)
+
+
+# handler for survey spec requests from apps.
+def handle_spec_request(survey):
+    # if survey exists, load & return its spec.
     if core.survey_exists(survey):
         spec = core.load_survey(survey)
-        print('spec: ',spec)
-        return flask.Response(status=200)
+        return flask.jsonify(spec)
+    # if survey did not exist, send back `400`.
     else:
-        print('does not exist!')
+        print('cannot find survey: ',survey)
         return flask.Response(status=400)

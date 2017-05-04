@@ -1,140 +1,44 @@
--- MULTIPAGE QUERY GENERATOR --
----- Produced on Behalf of CSBCD at the University of Hawaii at Manoa
----- Author: Forrest Marshall
-
--- LOCAL DEPENDENCIES --
 import Types exposing (..)
-import Utilities as Utils
+import Html exposing (Html)
+import Interface as Iface
+import Comms
 
--- ELM-PACKAG DEPENDENCIES --
-import Html
-import Dict
+main = Html.program
+  { init = init
+  , update = update
+  , subscriptions = subscriptions
+  , view = view
+  }
 
 
--- MAIN LOOP BOILERPLATE --
-main =
-  Html.programWithFlags
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = subscriptions
+init : ( Model , Cmd Msg )
+init =
+  ( { program = Init -- program is initializing.
+    , session = []   -- nothing in session yet.
+    , archive = []   -- nothing in archive yet.
     }
-
--- /
-
-
--- MODEL --
-
--- Deplyoment arg injected server-side by flask/jinja.
-type alias Flags = Deployment
-init : Flags -> ( Model, Cmd Msg )
-init deployment =
-  let
-    model: Model
-    model =
-      { page    = QueryPage
-      , queries = deployment.queries
-      , config  = deployment.config
-      , archive = []
-      , uploads = []
-      , selections = Dict.empty
-      , is_filled  = False
-      , paradigm   = get_paradigm deployment
-      }
-  in
-    (model, Cmd.none)
+  , Comms.load_survey ) -- immediately request `Survey` data.
 
 
-get_paradigm : Deployment -> Paradigm
-get_paradigm { queries, config } =
-  let
-    qcount = List.length queries
-    kbool  = Debug.log "kisok mode: " config.kiosk_mode
-  in
-    if kbool || qcount <= 1 then
-      Kiosk
-    else
-      Form
-
--- /
-
-
--- UPDATE --
-
--- Handles events & updates to the model.
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
   case msg of
+    Set state ->
+      ( { model | program = state }
+      , Cmd.none )
 
-    -- Takes record a selection event.
-    Select ( queryID, vote ) ->
-      Utils.handle_selection model queryID vote
+    User input ->
+      Iface.handle_input model input
 
-    -- Handle click of "Submit" button by user.
-    Submit ->
-      Utils.handle_submission model
-
-    -- Saves a generated archive to model.
-    Save entry ->
-      Utils.handle_save model entry
-
-    -- Return to standard query page.
-    Resume ->
-      ( { model | page = QueryPage }, Cmd.none )
-
-    -- Triggers the uplaod handler.
-    Upload ->
-      Utils.handle_upload model
-
-    -- Handles an http response.
-    Recieve comms ->
-      Utils.handle_response model comms
+    Update comms ->
+      Comms.handle_update model comms
 
 
--- SUBSCRIPTIONS --
-
-
--- Generates subscriptions for time-dependent events.
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  case model.page of
-
-    QueryPage ->
-      let
-        upload_interval = model.config.upload_interval
-      in
-        Utils.subscribe Upload upload_interval
-
-    SplashPage ->
-      let
-        upload_interval = model.config.upload_interval
-        splash_interval = model.config.splash_interval
-      in
-        Sub.batch
-          [ Utils.subscribe Upload upload_interval
-          , Utils.subscribe Resume splash_interval
-          ]
-
-    StaticPage ( _ ) ->
-      Sub.none
-
--- /
+  Sub.none
 
 
--- VIEW --
-
--- Toggles between question page and splash page.
-view : Model -> Html.Html Msg
+view : Model -> Html Msg
 view model =
-  case model.page of
-
-    QueryPage ->
-      Utils.build_queries model
-
-    SplashPage ->
-      Utils.build_txt_page model.config.splash_text
-
-    StaticPage txt ->
-      Utils.build_txt_page txt
-
--- /
+  Html.text ( toString model )
