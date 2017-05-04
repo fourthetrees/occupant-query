@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import psycopg2 as psql
-import src.file_utils as futils
+import src.utils.files as futils
 
 # This is the primary `inner-join` used to collect the goods.
 CMD = """
@@ -59,7 +59,7 @@ def parse_active(rows):
         survey = mapping.get(url,{'id':row['survey-id'],'questions':[]})
         # filter `questions` to see if corresponding question object exists.
         fltr = lambda q: q['id'] == row['question-id']
-        match = [(i,q) for i,q in enumerate survey['questions'] if fltr(q)]
+        match = [(i,q) for i,q in enumerate(survey['questions']) if fltr(q)]
         assert len(match) <= 1
         # get question object & index, or initialize a new question object.
         index,question = match.pop() if match else (None,init_question(row))
