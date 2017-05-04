@@ -3,6 +3,7 @@ import Html exposing (Html)
 import Interface as Iface
 import Comms
 
+
 main = Html.program
   { init = init
   , update = update
@@ -41,4 +42,15 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-  Html.text ( toString model )
+  case model.program of
+    Init ->
+      Iface.splash "loading survey..."
+
+    Kiosk survey ->
+      Iface.render_kiosk model survey
+
+    Form survey ->
+      Iface.render_form model survey
+
+    Fin ->
+      Iface.splash "process complete."

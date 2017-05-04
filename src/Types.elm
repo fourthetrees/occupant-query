@@ -1,6 +1,23 @@
 module Types exposing (..)
 import Http
 
+
+type alias Model =
+  { program : State
+  , session : Maybe ( List Selection )
+  , archive : Maybe ( List Response  )
+  }
+
+
+type State = Init | Kiosk Survey | Form Survey | Fin
+
+
+type Input = Select Selection | Submit Response
+
+
+type Msg = Set State | User Input | Update ( Result Http.Error Survey )
+
+
 type alias Option =
   { text : String
   , code : Int
@@ -27,20 +44,4 @@ type alias Response =
   { time: Int
   , code: Int
   , sels: List Selection
-  }
-
-
-type State = Init | Kiosk Survey | Form Survey | Fin
-
-
-type Input = Select Selection | Submit Response
-
-
-type Msg = Set State | User Input | Update ( Result Http.Error Survey )
-
-
-type alias Model =
-  { program : State
-  , session : List Selection
-  , archive : List Response
   }
