@@ -5,6 +5,22 @@ import Html.Events as He
 import Types exposing (..)
 
 
+handle_input : Model -> Input -> ( Model , Cmd Msg )
+handle_input model input =
+  case input of
+    Submit response ->
+      ( model, Cmd.none ) -- placeholder
+    Select selection ->
+      handle_selection model
+
+
+splash : String -> Html Msg
+splash text =
+  Html.h2
+    [ Ha.class "splash" ]
+    [ Html.text text    ]
+
+
 render_kiosk : Model -> Survey -> Html Msg
 render_kiosk model survey =
   splash "~kiosk placeholder~"
@@ -15,21 +31,26 @@ render_form model survey =
   splash "~form placeholder~"
 
 
-splash : String -> Html Msg
-splash text =
-  Html.h2
-    [ Ha.class "splash" ]
-    [ Html.text text    ]
+-- update the model when a selection event occurs.
+handle_selection : Model -> Selection -> ( Model , Cmd Msg )
+handle_selection model selection =
+  let
+    new_sess = Dict.insert selection.itm selection model.session
+  in
+    ( { model | session = new_sess }
+    , Cmd.none )
 
 
-handle_input : Model -> Input -> ( Model, Cmd Msg )
-handle_input model input =
-  case input of
-    Submit response ->
-      ( model, Cmd.none ) -- placeholder
-    Select selection ->
-
-
+-- check if all options have been selected in a given session.
+is_filled : Survey -> Session -> Bool
+is_filled survey session =
+  let
+    fltr = (\item bool ->
+      if bool then
+        Dict.member item.code session
+      else False )
+  in
+    List.foldr fltr True survey.itms
 
 -- generate a question from a `Question` specification
 -- and (if exists) the id of the currently selected option.

@@ -48,7 +48,7 @@ type alias Selection =
   , opt: Id
   }
 
-type alias Session = Dict Id ( Maybe Selection )
+type alias Session = Dict Id Selection
 
 type alias Response =
   { time: Int
