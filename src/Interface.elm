@@ -3,6 +3,7 @@ import Html exposing (Html)
 import Html.Attributes as Ha
 import Html.Events as He
 import Types exposing (..)
+import Dict exposing (Dict)
 
 
 handle_input : Model -> Input -> ( Model , Cmd Msg )
@@ -11,7 +12,7 @@ handle_input model input =
     Submit response ->
       ( model, Cmd.none ) -- placeholder
     Select selection ->
-      handle_selection model
+      handle_selection model selection
 
 
 splash : String -> Html Msg
@@ -54,7 +55,7 @@ is_filled survey session =
 
 -- generate a question from a `Question` specification
 -- and (if exists) the id of the currently selected option.
-question : Question -> Maybe Id -> Html Msg
+question : Question -> Maybe Uid -> Html Msg
 question spec selected =
   let
     text = question_text spec.text
@@ -76,23 +77,31 @@ question_text text =
 -- accepts a question-id, list of options, and (if exists),
 -- the id of the currently selected option.  Generates a div
 -- containing a selector for each listed option.
-options : Id -> List Option -> Maybe Id -> Html Msg
+options : Uid -> List Option -> Maybe Uid -> Html Msg
 options parent opts selected =
   let
     is_selected = (\ oid ->
       case selected of
-        Some uid ->
+        Just uid ->
           uid == oid
         Nothing -> False )
     mkSelector = (\ opt ->
       selector
         { itm = parent , opt = opt.code }
         opt.text
-        is_selected opd.code )
+        ( is_selected opt.code )
+      )
   in
     Html.div
       [ Ha.classList [ ( "options", True ) ] ]
-      List.map mkSelector opts
+      ( List.map mkSelector opts )
+
+
+
+submit : Bool -> Html Msg
+submit enabled =
+  let
+    selection = 
 
 
 -- generate a button which fires off a `Selection`
@@ -101,9 +110,21 @@ options parent opts selected =
 selector : Selection -> Txt -> Bool -> Html Msg
 selector selection text selected =
   Html.button
-    [ He.onClick User ( Select selection )
+    [ He.onClick ( User ( Select selection ) )
     , Ha.classList
       [ ( "selected" , selected )
       , ( "selector" , True   ) ]
     ]
+    [ Html.text text ]
+
+
+-- Generate a button which fires off a `Selection`
+-- event when clicked, and is disabled/enabled based
+-- on a boolian flag ( where True --> enabled ).
+actor : Selection -> Txt -> Bool -> Html Msg
+actor selection text enabled =
+  Html.button
+    [ He.onClick ( User ( Select selection ) )
+    , Ha.classList [ ( "actor" , True ) ]
+    , Ha.disabled ( not enabled )       ]
     [ Html.text text ]

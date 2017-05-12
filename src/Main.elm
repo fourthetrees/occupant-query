@@ -1,6 +1,7 @@
 import Types exposing (..)
 import Html exposing (Html)
 import Interface as Iface
+import Dict exposing (Dict)
 import Comms
 
 
@@ -15,8 +16,8 @@ main = Html.program
 init : ( Model , Cmd Msg )
 init =
   ( { program = Init -- program is initializing.
-    , session = Nothing   -- nothing in session yet.
-    , archive = Nothing   -- nothing in archive yet.
+    , session = Dict.empty   -- nothing in session yet.
+    , archive = []   -- nothing in archive yet.
     }
   , Comms.load_survey ) -- immediately request `Survey` data.
 
