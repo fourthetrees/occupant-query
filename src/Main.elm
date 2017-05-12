@@ -1,6 +1,7 @@
 import Types exposing (..)
 import Html exposing (Html)
 import Interface as Iface
+import Components as Comp
 import Dict exposing (Dict)
 import Comms
 
@@ -45,7 +46,7 @@ view : Model -> Html Msg
 view model =
   case model.program of
     Init ->
-      Iface.splash "loading survey..."
+      Comp.splash "loading..."
 
     Kiosk survey ->
       Iface.render_kiosk model survey
@@ -54,4 +55,4 @@ view model =
       Iface.render_form model survey
 
     Fin ->
-      Iface.splash "process complete."
+      Comp.splash "Thank You!"
