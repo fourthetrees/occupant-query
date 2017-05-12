@@ -15,8 +15,8 @@ main = Html.program
 init : ( Model , Cmd Msg )
 init =
   ( { program = Init -- program is initializing.
-    , session = []   -- nothing in session yet.
-    , archive = []   -- nothing in archive yet.
+    , session = Nothing   -- nothing in session yet.
+    , archive = Nothing   -- nothing in archive yet.
     }
   , Comms.load_survey ) -- immediately request `Survey` data.
 

@@ -1,11 +1,12 @@
 module Types exposing (..)
 import Http
+import Dict exposing (Dict)
 
 
 type alias Model =
   { program : State
-  , session : Maybe ( List Selection )
-  , archive : Maybe ( List Response  )
+  , session : Session
+  , archive : List Response
   }
 
 
@@ -17,31 +18,40 @@ type Input = Select Selection | Submit Response
 
 type Msg = Set State | User Input | Update ( Result Http.Error Survey )
 
+-- type alias to help clarify when an integer is
+-- intended to be used as a unique identified.
+type alias Uid  = Int
+
+-- type alias to clarify when a string is intended
+-- for display to the user.
+type alias Txt = String
 
 type alias Option =
-  { text : String
-  , code : Int
+  { text : Txt
+  , code : Uid
   }
 
 type alias Question =
-  { text : String
-  , code : Int
+  { text : Txt
+  , code : Uid
   , opts : List Option
   }
 
 type alias Survey =
-  { text : String
-  , code : Int
+  { text : Txt
+  , code : Uid
   , itms : List Question
   }
 
 type alias Selection =
-  { itm: Int
-  , opt: Int
+  { itm: Id
+  , opt: Id
   }
+
+type alias Session = Dict Id ( Maybe Selection )
 
 type alias Response =
   { time: Int
-  , code: Int
+  , code: Uid
   , sels: List Selection
   }
