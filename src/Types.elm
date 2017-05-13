@@ -44,14 +44,14 @@ type alias Survey =
   }
 
 type alias Selection =
-  { itm: Uid
-  , opt: Uid
+  { itm : Uid
+  , opt : Uid
   }
 
 type alias Session = Dict Uid Selection
 
 type alias Response =
-  { time: Int
-  , code: Uid
-  , sels: List Selection
+  { time : Int
+  , code : Uid
+  , sels : List Selection
   }

@@ -17,7 +17,6 @@ splash text =
     [ Ha.class "splash" ]
     [ Html.text text    ]
 
-
 -- generate a question from a `Question` specification
 -- and (if exists) the id of the currently selected option.
 question : Question -> Maybe Uid -> Html Msg
