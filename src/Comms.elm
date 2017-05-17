@@ -17,10 +17,11 @@ handle_update model result =
       in ( model, Cmd.none )
 
 
-load_survey : Cmd Msg
-load_survey =
+-- load survey from a specified callback address
+load_survey : String -> Cmd Msg
+load_survey callback =
   let
-    request = Http.post "" Http.emptyBody jd_survey
+    request = Http.post callback Http.emptyBody jd_survey
     update = (\ r -> Update ( Debug.log "update: " r ) )
   in
     Http.send update request

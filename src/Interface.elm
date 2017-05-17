@@ -19,24 +19,24 @@ handle_input model input =
 
 
 
-render_kiosk : Model -> Survey -> Html Msg
-render_kiosk model survey =
+
+render_kiosk : Config -> Program -> Html Msg
+render_kiosk conf pgrm =
   splash "~kiosk placeholder~"
 
 
-render_form : Model -> Survey -> Html Msg
-render_form model survey =
+render_form : Config -> Program -> Html Msg
+render_form conf pgrm =
   splash "~form placeholder~"
 
 
--- update the model when a selection event occurs.
-handle_selection : Model -> Selection -> ( Model , Cmd Msg )
-handle_selection model selection =
+-- update `pgrm`  when a selection event occurs.
+add_selection : Selection -> Program -> Program
+add_selection selection program =
   let
-    new_sess = Dict.insert selection.itm selection model.session
+    sess = Dict.insert selection.itm selection program.sess
   in
-    ( { model | session = new_sess }
-    , Cmd.none )
+    { program | sess = sess }
 
 
 -- check if all options have been selected in a given session.
