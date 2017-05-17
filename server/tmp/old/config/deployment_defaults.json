@@ -1,7 +1,0 @@
-{
-    "splash_interval" : 3,
-    "upload_interval" : 20,
-    "server_address"  : "../callback/default",
-    "splash_text"     : "Thank You!",
-    "kiosk_mode"      : true
-}
