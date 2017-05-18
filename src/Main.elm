@@ -29,38 +29,44 @@ init =
 update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
   case msg of
-    Set mode ->
-      let
-          conf = { model.conf | mode = mode }
-      in
-        ( { model | conf = conf }
-        , Cmd.none )
-
     User input ->
-      case input of
-        Select selection ->
+      case model.pgrm of
+        Run pgrm ->
           let
-            pgrm = Utils.handle_select selection model.pgrm
+            (pgrm,cmd) = Iface.apply_input input pgrm
+          in
+            ( { model | pgrm = Run pgrm }
+            , cmd )
+
+        _ ->
+          let _ = Debug.log "invalid input" input
+          in ( model, Cmd.none )
+
+    -- TODO: Refactor to two top-lvl `Msg` types s.t. we can
+    -- separate Comms from stateful events.    
+    
+    Save response ->
+      let
+        pgrm = Utils.add_response model.pgrm response
+      in
+        ( { model | pgrm = pgrm }
+        , Comms.push_archive pgrm.arch )
+
+    Recv rslt ->
+      case rslt of
+        Update (rslt) ->
+          let
+            pgrm = Comms.apply_update model.pgrm rslt
           in
             ( { model | pgrm = pgrm }
             , Cmd.none )
 
-        Submit session ->
+        Upload (rslt) ->
           let
-            (pgrm,cmd) = Utils.handle_submit session model.pgrm
+            pgrm = Comms.assess_upload model.pgrm rslt
           in
             ( { model | pgrm = pgrm }
-            , cmd )
-
-    Save response ->
-      let
-        (pgrm,cmd) = Utils.handle_save response model.pgrm
-      in
-        ( { model | pgrm = pgrm }
-        , cmd )
-    
-    Update comms ->
-      Comms.handle_update model comms
+            , Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -79,7 +85,7 @@ view { pgrm, conf } =
         Kiosk ->
           Iface.render_kiosk conf pgrm
 
-        Form survey ->
+        Form ->
           Iface.render_form conf pgrm
  
     Fin ->

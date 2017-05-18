@@ -4,7 +4,7 @@ import Dict exposing (Dict)
 
 -- the model represents the state of the application at any given time.
 type alias Model =
-  { pgrm : Proc Program   -- state of the program
+  { pgrm : Proc Pgrm   -- state of the program
   , conf : Config         -- configurations for app behavior
   }
 
@@ -17,7 +17,7 @@ type alias Config =
   }
 
 -- the program describes the internal state of a survey instance.
-type alias Program =
+type alias Pgrm =
   { spec : Survey     -- specification of the specific survey.
   , mode : Mode       -- program mode (ie; kiosk or form)
   , sess : Session    -- dict of selections made by user.
@@ -35,11 +35,16 @@ type Proc p = Init | Run p | Fin
 
 
 -- enum representing possible input events.
-type Input = Select Selection | Submit Session
+type Input = Select Selection | Submit
+
+
+-- enum representing the possible responses that can be recieved from server.
+type Rsp = Update ( Result Http.Error Survey ) | Upload ( Result Http.Error String )
 
 
 -- enum representing possible state-altering events.
-type Msg = Set State | User Input | Update ( Result Http.Error Survey )
+type Msg = User Input | Recv Rsp | Save Response
+
 
 -- type alias to clarify when a list of responses
 -- is an archive object.

@@ -1,32 +1,131 @@
 module Comms exposing (..)
 import Json.Decode as Jd
+import Json.Encode as Je
 import Types exposing (..)
+import Dict exposing (Dict)
 import Debug
 import Http
 
 
-handle_update : Model -> Result Http.Error Survey -> ( Model , Cmd Msg )
-handle_update model result =
+
+-- shorthand record describing the fundamental 
+-- units of a server communication.
+type alias Comm a msg =
+  { send : Server
+  , read : Jd.Decoder a
+  , wrap : ( Result Http.Error a -> msg )
+  }
+
+-- generic function for pushing a value to a server.
+push : Comm a msg -> Je.Value  -> Cmd msg
+push comm value =
+  let
+    body = Http.jsonBody value
+  in
+    Http.post comm.send body comm.read
+    |> Http.send comm.wrap
+
+
+-- generic function for pulling some value from a server.
+pull : Comm a msg -> Cmd msg
+pull comm =
+  Http.get comm.send comm.read
+  |> Http.send comm.wrap
+
+
+-- pull a survey spec from the server.
+pull_survey : Config -> Cmd Msg
+pull_survey config =
+  let
+    wrap = (\ rslt ->
+        Recv ( Update rslt )
+        )
+  in
+    pull
+      { send = config.srvr
+      , read = jd_survey
+      , wrap = wrap
+      }
+
+
+-- push an archive to the server.
+push_archive : Config -> Archive -> Cmd Msg
+push_archive config arch =
+  let
+    data = je_archive arch
+    comm =
+      { send = config.srvr
+      , read = Jd.string
+      , wrap = (\ rslt ->
+        Recv ( Upload rslt ) )
+      }
+  in
+    push comm data
+
+
+-- apply the new survey spec to `pgrm` if possible.
+apply_update : Pgrm -> Result Http.Error Survey -> Pgrm
+apply_update pgrm result =
   case result of
     Ok(survey) ->
-      ( { model | program = Kiosk survey }
-      , Cmd.none )
+      { pgrm | spec = survey , sess = Dict.empty }
 
     Err(error) ->
       let _ = Debug.log "error: " error
-      in ( model, Cmd.none )
+      in pgrm
+
+-- assess the result of an upload attempt, and dispose
+-- of the corresponding archive if able.
+assess_upload : Pgrm -> Result Http.Error String -> Pgrm
+assess_upload pgrm result =
+  case result of
+    Ok (rsp) ->
+      let _ = Debug.log "upload ok" rsp
+      in { pgrm | arch = [] }
+
+    Err (err) ->
+      let _ = Debug.log "upload err" err
+      in pgrm
 
 
--- load survey from a specified callback address
-load_survey : String -> Cmd Msg
-load_survey callback =
+-- encodes an archive list to a json value.
+je_archive : Archive -> Je.Value
+je_archive arch =
   let
-    request = Http.post callback Http.emptyBody jd_survey
-    update = (\ r -> Update ( Debug.log "update: " r ) )
+    responses = List.map je_response arch
   in
-    Http.send update request
+    Je.list responses
 
 
+-- encodes a response record to a json value.
+je_response : Response -> Je.Value
+je_response rsp =
+  let
+    time = Je.int rsp.time
+    code = Je.int rsp.code
+    sels = Je.list ( List.map je_selection rsp.sels )
+  in
+    Je.object
+      [ ( "time" , time )
+      , ( "code" , code )
+      , ( "sels" , sels )
+      ]
+
+
+-- encodes a selection record to a json value.
+je_selection : Selection -> Je.Value
+je_selection sel =
+  let
+    itm = Je.int sel.itm
+    opt = Je.int sel.opt
+  in
+    Je.object
+      [ ( "itm" , itm )
+      , ( "opt" , opt )
+      ]
+
+
+-- decodes a json string into a survey spec.
 jd_survey : Jd.Decoder Survey
 jd_survey =
   let
@@ -37,6 +136,7 @@ jd_survey =
     Jd.map3 Survey text code itms
 
 
+-- decodes a json string into a question spec.
 jd_question : Jd.Decoder Question
 jd_question =
   let
@@ -47,6 +147,7 @@ jd_question =
     Jd.map3 Question text code opts
 
 
+-- decodes a json string into an option spec.
 jd_option : Jd.Decoder Option
 jd_option =
   let
