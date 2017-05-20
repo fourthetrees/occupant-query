@@ -4,7 +4,7 @@ import Html exposing (Html)
 import Types exposing (..)
 import Dict exposing (Dict)
 import Components exposing (..)
-
+import Utilities as Utils
 
 render_kiosk : Config -> Pgrm -> Html Msg
 render_kiosk conf pgrm =
@@ -22,19 +22,19 @@ apply_input input pgrm =
   case input of
     Select selection ->
       let
-        pgrm = Utils.insert_selection selection model.pgrm
+        updated = Utils.insert_selection selection pgrm
       in
-        ( pgrm , Cmd.none )
+        ( updated , Cmd.none )
 
     Submit ->
       let
-        (pgrm,cmd) =
-          case Utils.submit_session model.pgrm of
+        (updated,cmd) =
+          case Utils.submit_session pgrm of
             Ok (pgrm,cmd) -> (pgrm,cmd)
             Err (_) ->
-              ( Debug.log "invalid submit event" model.pgrm
+              ( Debug.log "invalid submit event" pgrm
               , Cmd.none )
       in
-        ( pgrm, cmd )
+        ( updated , cmd )
 
 

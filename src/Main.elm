@@ -1,5 +1,6 @@
 import Types exposing (..)
 import Html exposing (Html)
+import Utilities as Utils
 import Interface as Iface
 import Components as Comp
 import Dict exposing (Dict)
@@ -16,14 +17,16 @@ main = Html.program
 
 init : ( Model , Cmd Msg )
 init =
-  ( { pgrm = Nothing
-    , conf =
+  let
+    pgrm = Init
+    conf =
       { srvr = ""
       , tick = 20
       , mode = Init
       }
-    }
-  , Comms.load_survey "" ) -- immediately request `Survey` data.
+  in
+      ( { pgrm = pgrm, conf = conf }
+      , Comms.pull_survey conf     )
 
 
 update : Msg -> Model -> ( Model , Cmd Msg )
@@ -33,9 +36,9 @@ update msg model =
       case model.pgrm of
         Run pgrm ->
           let
-            (pgrm,cmd) = Iface.apply_input input pgrm
+            (updated,cmd) = Iface.apply_input input pgrm
           in
-            ( { model | pgrm = Run pgrm }
+            ( { model | pgrm = Run updated }
             , cmd )
 
         _ ->

@@ -1,4 +1,6 @@
 module Utilities exposing (..)
+
+import Types exposing (..)
 import Time exposing (Time)
 import Dict exposing (Dict)
 import Task exposing (Task)
@@ -12,7 +14,7 @@ timestamp closure =
 
 
 -- attempt to 
-submit_session : Pgrm -> Result ( Pgrm , Cmd Msg ) ()
+submit_session : Pgrm -> Result () ( Pgrm , Cmd Msg )
 submit_session pgrm =
   if is_filled pgrm.spec pgrm.sess then
     let
