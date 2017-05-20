@@ -63,6 +63,46 @@ push_archive config arch =
     push comm data
 
 
+-- process a server response, possibly generating a `Pgrm`.
+process_rsp : Maybe Pgrm -> Rsp -> Maybe Pgrm
+process_rsp pgrm rsp = 
+  case pgrm of
+    -- if `pgrm` exists, `rsp`.
+    Just pgrm ->
+      case rsp of
+        Update rsp ->
+          Just ( apply_update pgrm rsp )
+        
+        Upload rsp ->
+          Just ( assess_upload pgrm rsp )
+
+    -- if no `pgrm` supplied, we are in `Init` case.
+    Nothing ->
+      case rsp of
+        -- attempt to initialize the pgrm.
+        Update rsp ->
+          initialize_pgrm rsp
+        -- anything other than an update is an error.
+        _  ->
+          let _ = Debug.log "unexpected comms" rsp
+          in Nothing
+
+
+-- attempt to generate a new pgrm instance from a server response.
+initialize_pgrm : Result Http.Error Survey -> Maybe Pgrm
+initialize_pgrm result =
+  case result of
+    Ok survey ->
+      Just
+        { spec = survey
+        , sess = Dict.empty
+        , arch = []
+        }
+    Err err ->
+      let _ = Debug.log "http error" err
+      in Nothing
+
+
 -- apply the new survey spec to `pgrm` if possible.
 apply_update : Pgrm -> Result Http.Error Survey -> Pgrm
 apply_update pgrm result =

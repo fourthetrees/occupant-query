@@ -17,8 +17,8 @@ render_form conf pgrm =
 
 
 -- apply user input to the program state.
-apply_input : Input -> Pgrm -> ( Pgrm , Cmd Msg )
-apply_input input pgrm =
+apply_input : Pgrm -> Input -> ( Pgrm , Cmd Msg )
+apply_input pgrm input =
   case input of
     Select selection ->
       let

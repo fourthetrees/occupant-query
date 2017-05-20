@@ -22,7 +22,7 @@ init =
     conf =
       { srvr = ""
       , tick = 20
-      , mode = Init
+      , mode = Kiosk
       }
   in
       ( { pgrm = pgrm, conf = conf }
@@ -31,45 +31,57 @@ init =
 
 update : Msg -> Model -> ( Model , Cmd Msg )
 update msg model =
-  case msg of
-    User input ->
-      case model.pgrm of
-        Run pgrm ->
+  case model.pgrm of
+    -- if program is initializing, await server comms.
+    Init -> 
+      case msg of
+        -- response from server.
+        Recv rsp ->
           let
-            (updated,cmd) = Iface.apply_input input pgrm
+            pgrm = case Comms.process_rsp Nothing rsp of
+              Just pgrm -> Run pgrm
+              Nothing -> Init
+          in
+            ( { model | pgrm = pgrm }
+            , Cmd.none              )
+
+        -- all other messages are errors.
+        _ ->
+          let _ = Debug.log "unexpected msg" msg
+          in ( model, Cmd.none )
+
+    -- if program is running, handle all `Msg` types.
+    Run pgrm ->
+      case msg of
+        Recv rsp ->
+          let
+            updated = case Comms.process_rsp (Just pgrm) rsp of
+              Just pgrm -> Run pgrm
+              Nothing -> model.pgrm
+          in
+            ( { model | pgrm = updated }
+            , Cmd.none )
+
+        User input ->
+          let
+            (updated,cmd) = Iface.apply_input pgrm input
           in
             ( { model | pgrm = Run updated }
             , cmd )
 
-        _ ->
-          let _ = Debug.log "invalid input" input
-          in ( model, Cmd.none )
-
-    -- TODO: Refactor to two top-lvl `Msg` types s.t. we can
-    -- separate Comms from stateful events.    
-    
-    Save response ->
-      let
-        pgrm = Utils.add_response model.pgrm response
-      in
-        ( { model | pgrm = pgrm }
-        , Comms.push_archive pgrm.arch )
-
-    Recv rslt ->
-      case rslt of
-        Update (rslt) ->
+        Save response ->
           let
-            pgrm = Comms.apply_update model.pgrm rslt
+            updated = Utils.add_response response pgrm
+            push = Comms.push_archive model.conf
           in
-            ( { model | pgrm = pgrm }
-            , Cmd.none )
+            ( { model | pgrm = Run updated }
+            , push updated.arch )
 
-        Upload (rslt) ->
-          let
-            pgrm = Comms.assess_upload model.pgrm rslt
-          in
-            ( { model | pgrm = pgrm }
-            , Cmd.none )
+    -- if program is finished, do nothing.
+    Fin ->
+      ( model , Cmd.none )
+
+
 
 
 subscriptions : Model -> Sub Msg
@@ -84,7 +96,7 @@ view { pgrm, conf } =
       Comp.splash "loading..."
 
     Run pgrm ->
-      case pgrm.mode of
+      case conf.mode of
         Kiosk ->
           Iface.render_kiosk conf pgrm
 

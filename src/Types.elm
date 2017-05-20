@@ -14,12 +14,15 @@ type alias Model =
 type alias Config =
   { srvr : Server     -- callback uri
   , tick : Seconds    -- server comm interval
+  , mode : Mode
   }
+
+
+
 
 -- the program describes the internal state of a survey instance.
 type alias Pgrm =
   { spec : Survey     -- specification of the specific survey.
-  , mode : Mode       -- program mode (ie; kiosk or form)
   , sess : Session    -- dict of selections made by user.
   , arch : Archive    -- list of previous completed sessions.
   }

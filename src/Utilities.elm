@@ -13,7 +13,7 @@ timestamp closure =
   Task.perform closure Time.now
 
 
--- attempt to 
+-- attempt to execute a submit!
 submit_session : Pgrm -> Result () ( Pgrm , Cmd Msg )
 submit_session pgrm =
   if is_filled pgrm.spec pgrm.sess then
@@ -53,8 +53,8 @@ insert_selection selection pgrm =
     { pgrm | sess = sess }
 
 
-add_response : Pgrm -> Response -> Pgrm
-add_response pgrm response =
+add_response : Response -> Pgrm -> Pgrm
+add_response response pgrm =
   let
     arch = pgrm.arch ++ [ response ]
   in
