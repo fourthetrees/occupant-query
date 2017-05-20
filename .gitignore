@@ -1,3 +1,8 @@
+# -- MISC IGNORES --
+
+# vim swap files
+*.swp
+
 # -- ELM IGNORES --
 
 # elm-package generated files
