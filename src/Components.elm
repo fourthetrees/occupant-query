@@ -18,11 +18,6 @@ splash text =
     [ Html.text text    ]
 
 
-
-
-
-
-
 -- generate a question from a `Question` specification
 -- and (if exists) the id of the currently selected option.
 question : Question -> Maybe Uid -> Html Msg
@@ -67,6 +62,14 @@ options parent opts selected =
       ( List.map mkSelector opts )
 
 
+-- generate a button which fires off a `Submit` event.
+-- Button only active/available when arg is `True`.
+submit : Bool -> Html Msg
+submit active =
+  Html.div
+    [ Ha.class "submit-button"     ]
+    [ actor Submit "submit" active ]
+
 
 -- generate a button which fires off a `Selection`
 -- event when clicked, and can have it's membership
@@ -85,10 +88,13 @@ selector selection text selected =
 -- Generate a button which fires off a `Selection`
 -- event when clicked, and is disabled/enabled based
 -- on a boolian flag ( where True --> enabled ).
-actor : Selection -> Txt -> Bool -> Html Msg
-actor selection text enabled =
+actor : Input -> Txt -> Bool -> Html Msg
+actor input text enabled =
   Html.button
-    [ He.onClick ( User ( Select selection ) )
-    , Ha.classList [ ( "actor" , True ) ]
-    , Ha.disabled ( not enabled )       ]
+    [ He.onClick  ( User input  )
+    , Ha.class "actor"
+    , Ha.disabled ( not enabled )
+    ]
     [ Html.text text ]
+
+

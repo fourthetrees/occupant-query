@@ -7,7 +7,7 @@ import Dict exposing (Dict)
 import Comms
 
 
-main = Html.program
+main = Html.programWithFlags
   { init = init
   , update = update
   , subscriptions = subscriptions
@@ -15,15 +15,29 @@ main = Html.program
   }
 
 
-init : ( Model , Cmd Msg )
-init =
+type alias Flags =
+  { srvr : String
+  , tick : Int
+  , mode : Int
+  }
+
+
+parse_flags : Flags -> Config
+parse_flags flags =
+  let
+    conf : ( Mode -> Config )
+    conf = Config flags.srvr flags.tick
+  in
+    if flags.mode < 1 then
+      conf Form
+    else conf Kiosk
+
+
+init : Flags -> ( Model , Cmd Msg )
+init flags =
   let
     pgrm = Init
-    conf =
-      { srvr = ""
-      , tick = 20
-      , mode = Kiosk
-      }
+    conf = parse_flags flags 
   in
       ( { pgrm = pgrm, conf = conf }
       , Comms.pull_survey conf     )
@@ -40,6 +54,7 @@ update msg model =
           let
             pgrm = case Comms.process_rsp Nothing rsp of
               Just pgrm -> Run pgrm
+
               Nothing -> Init
           in
             ( { model | pgrm = pgrm }
@@ -98,10 +113,10 @@ view { pgrm, conf } =
     Run pgrm ->
       case conf.mode of
         Kiosk ->
-          Iface.render_kiosk conf pgrm
+          Iface.render_kiosk pgrm
 
         Form ->
-          Iface.render_form conf pgrm
+          Iface.render_form pgrm
  
     Fin ->
       Comp.splash "Thank You!"

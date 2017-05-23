@@ -1,19 +1,45 @@
 module Interface exposing (..)
 
 import Html exposing (Html)
+import Html.Attributes as Ha
 import Types exposing (..)
 import Dict exposing (Dict)
-import Components exposing (..)
+import Components as Cmp
 import Utilities as Utils
 
-render_kiosk : Config -> Pgrm -> Html Msg
-render_kiosk conf pgrm =
-  splash "~kiosk placeholder~"
+
+-- generate a kiosk-style interface.
+render_kiosk : Pgrm -> Html Msg
+render_kiosk pgrm =
+  Cmp.splash "~kiosk placeholder~"
 
 
-render_form : Config -> Pgrm -> Html Msg
-render_form conf pgrm =
-  splash "~form placeholder~"
+-- generate a form-style interface.
+render_form : Pgrm -> Html Msg
+render_form { spec , sess } =
+  let
+    questions = form_questions sess spec.itms
+    sub = Cmp.submit ( Utils.is_filled spec sess )
+  in
+    Html.div
+      [ Ha.class "form" ]
+      [ questions , sub ]
+
+
+-- generate the questions for a form-style interface.
+form_questions : Session -> List Question -> Html Msg
+form_questions session questions =
+  let
+    generate = (\ spec ->
+      Cmp.question spec
+        ( case Dict.get spec.code session of
+          Just selection -> Just selection.opt
+          Nothing -> Nothing )
+      )
+  in
+    Html.div
+      [ Ha.class "form-questions"   ]
+      ( List.map generate questions )
 
 
 -- apply user input to the program state.
@@ -36,5 +62,6 @@ apply_input pgrm input =
               , Cmd.none )
       in
         ( updated , cmd )
+
 
 
