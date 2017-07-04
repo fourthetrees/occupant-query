@@ -4,6 +4,7 @@ import Utilities as Utils
 import Interface as Iface
 import Components as Comp
 import Dict exposing (Dict)
+import Time
 import Comms
 
 
@@ -39,7 +40,7 @@ init flags =
     pgrm = Init
     conf = parse_flags flags 
   in
-      ( { pgrm = pgrm, conf = conf }
+      ( { pgrm = pgrm, conf = conf, page = Main }
       , Comms.pull_survey conf     )
 
 
@@ -79,7 +80,10 @@ update msg model =
 
         User input ->
           let
-            (updated,cmd) = Iface.apply_input pgrm input
+            (updated,cmd) =
+              case model.conf.mode of
+                Form -> Iface.form_input pgrm input
+                Kiosk -> Iface.kiosk_input pgrm input
           in
             ( { model | pgrm = Run updated }
             , cmd )
@@ -89,8 +93,13 @@ update msg model =
             updated = Utils.add_response response pgrm
             push = Comms.push_archive model.conf
           in
-            ( { model | pgrm = Run updated }
+            ( { model | pgrm = Run updated, page = Splash "Thank You!" }
             , push updated.arch )
+
+        Set page ->
+          ( { model | page = page }
+          , Cmd.none )
+ 
 
     -- if program is finished, do nothing.
     Fin ->
@@ -101,23 +110,43 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.none
+  -- check mode; subscriptions are only used in
+  -- kiosk mode, as form mode is linear in its operations.
+  case model.conf.mode of
+    Kiosk ->
+      -- subscriptions only matter if pgrm is running at the moment.
+      case model.pgrm of
+        Run pgrm ->
+          -- if we have an active kiosk splash-page, return to
+          -- main page again in three seconds. 
+          case model.page of
+            Splash txt ->
+              Time.every ( 3 * Time.second ) (\_ -> Set Main )
 
+            _ -> Sub.none
+
+        _ -> Sub.none
+
+    _ -> Sub.none  
 
 view : Model -> Html Msg
-view { pgrm, conf } =
+view { pgrm, conf, page } =
   case pgrm of
     Init ->
       Comp.splash "loading..."
 
     Run pgrm ->
-      case conf.mode of
-        Kiosk ->
-          Iface.render_kiosk pgrm
+      case page of
+        Main ->
+          case conf.mode of
+            Kiosk ->
+              Iface.render_kiosk pgrm
 
-        Form ->
-          Iface.render_form pgrm
+            Form ->
+              Iface.render_form pgrm
  
+        Splash text -> Comp.splash text
+    
     Fin ->
       Comp.splash "Thank You!"
 
