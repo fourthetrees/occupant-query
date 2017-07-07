@@ -6,6 +6,7 @@ import Dict exposing (Dict)
 type alias Model =
   { pgrm : Proc Pgrm   -- state of the program
   , conf : Config      -- configurations for app behavior
+  , page : Page
   }
 
 
@@ -35,6 +36,8 @@ type alias Deployment =
   , pgrm : Survey
   }
 
+type Page = Main | Splash String
+
 -- mode of display for the running program.
 type Mode = Kiosk | Form
 
@@ -49,11 +52,15 @@ type Input = Select Selection | Submit
 
 
 -- enum representing the possible responses that can be recieved from server.
+<<<<<<< HEAD
 type Rsp = Update ( Result Http.Error Deployment ) | Upload ( Result Http.Error String )
+=======
+type Rsp = Update ( Result Http.Error Survey ) | Upload ( Result Http.Error () )
+>>>>>>> 7df548afb46a29e80386f7f7bd71489969186da2
 
 
 -- enum representing possible state-altering events.
-type Msg = User Input | Recv Rsp | Save Response
+type Msg = User Input | Recv Rsp | Save Response | Set Page
 
 
 -- type alias to clarify when a list of responses

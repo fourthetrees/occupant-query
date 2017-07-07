@@ -14,23 +14,29 @@ timestamp closure =
 
 
 -- attempt to execute a submit!
-submit_session : Pgrm -> Result () ( Pgrm , Cmd Msg )
-submit_session pgrm =
-  if is_filled pgrm.spec pgrm.sess then
-    let
+submit_session : Pgrm -> Mode -> Result () ( Pgrm , Cmd Msg )
+submit_session pgrm mode =
+  let
       save = (\ time ->
         Save
           { time = floor ( Time.inSeconds time )
           , code = pgrm.spec.code
           , sels = Dict.values pgrm.sess
           } )
-    in
-      Ok
-        ( { pgrm | sess = Dict.empty }
-        , timestamp save )
+  in
+    case mode of
+      Form ->
+        if is_filled pgrm.spec pgrm.sess then
+          Ok
+            ( { pgrm | sess = Dict.empty }
+            , timestamp save )
 
-  else Err ()
+        else Err ()
 
+      Kiosk ->
+        Ok
+          ( { pgrm | sess = Dict.empty }
+          , timestamp save )
 
 
 -- check if all options have been selected in a given session.

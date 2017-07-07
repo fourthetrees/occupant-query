@@ -34,7 +34,7 @@ question spec selected =
 -- generate question text.
 question_text : Txt -> Html Msg
 question_text text =
-  Html.div
+  Html.h2
     [ Ha.classList [ ( "question-text", True ) ] ]
     [ Html.text text ]
 
@@ -66,9 +66,26 @@ options parent opts selected =
 -- Button only active/available when arg is `True`.
 submit : Bool -> Html Msg
 submit active =
-  Html.div
-    [ Ha.class "submit-button"     ]
-    [ actor Submit "submit" active ]
+  Html.button
+    [ He.onClick ( User Submit )
+    , Ha.class "submit-button"
+    , Ha.disabled ( not active )
+    ]
+    [ Html.text "submit" ]
+
+
+-- generic action button; accepts a tuple of the
+-- form (class,text), as well as the `Input` message
+-- to fire on a click event, and bool indicating if the
+-- button is currently active/enabled.
+actor : ( String , String ) -> Input -> Bool -> Html Msg
+actor ( class , text ) input active =
+  Html.button
+    [ He.onClick ( User input )
+    , Ha.class class
+    , Ha.disabled ( not active )
+    ]
+    [ Html.text text ]
 
 
 -- generate a button which fires off a `Selection`
@@ -81,19 +98,6 @@ selector selection text selected =
     , Ha.classList
       [ ( "selected" , selected )
       , ( "selector" , True   ) ]
-    ]
-    [ Html.text text ]
-
-
--- Generate a button which fires off a `Selection`
--- event when clicked, and is disabled/enabled based
--- on a boolian flag ( where True --> enabled ).
-actor : Input -> Txt -> Bool -> Html Msg
-actor input text enabled =
-  Html.button
-    [ He.onClick  ( User input  )
-    , Ha.class "actor"
-    , Ha.disabled ( not enabled )
     ]
     [ Html.text text ]
 

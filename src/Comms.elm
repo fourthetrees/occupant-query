@@ -55,7 +55,7 @@ push_archive config arch =
     data = je_archive arch
     comm =
       { send = config.srvr
-      , read = Jd.string
+      , read = Jd.succeed ()
       , wrap = (\ rslt ->
         Recv ( Upload rslt ) )
       }
@@ -122,7 +122,7 @@ apply_update pgrm conf result =
 
 -- assess the result of an upload attempt, and dispose
 -- of the corresponding archive if able.
-assess_upload : Pgrm -> Result Http.Error String -> Pgrm
+assess_upload : Pgrm -> Result Http.Error () -> Pgrm
 assess_upload pgrm result =
   case result of
     Ok (rsp) ->

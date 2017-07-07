@@ -10,8 +10,18 @@ import Utilities as Utils
 
 -- generate a kiosk-style interface.
 render_kiosk : Pgrm -> Html Msg
-render_kiosk pgrm =
-  Cmp.splash "~kiosk placeholder~"
+render_kiosk { spec, sess } =
+  case List.head spec.itms of
+    Just spec ->
+      let
+        question = Cmp.question spec Nothing
+      in
+        Html.div
+          [ Ha.class "kiosk" ]
+          [ question         ]
+
+    Nothing ->
+     Cmp.splash "no questions available at this time" 
 
 
 -- generate a form-style interface.
@@ -43,8 +53,8 @@ form_questions session questions =
 
 
 -- apply user input to the program state.
-apply_input : Pgrm -> Input -> ( Pgrm , Cmd Msg )
-apply_input pgrm input =
+form_input : Pgrm -> Input -> ( Pgrm , Cmd Msg )
+form_input pgrm input =
   case input of
     Select selection ->
       let
@@ -55,7 +65,7 @@ apply_input pgrm input =
     Submit ->
       let
         (updated,cmd) =
-          case Utils.submit_session pgrm of
+          case Utils.submit_session pgrm Form of
             Ok (pgrm,cmd) -> (pgrm,cmd)
             Err (_) ->
               ( Debug.log "invalid submit event" pgrm
@@ -64,4 +74,22 @@ apply_input pgrm input =
         ( updated , cmd )
 
 
+kiosk_input : Pgrm -> Input -> ( Pgrm , Cmd Msg )
+kiosk_input pgrm input =
+  case input of
+    Select selection ->
+      let
+        updated = Utils.insert_selection selection pgrm
+      in
+        case Utils.submit_session updated Kiosk of
+          Ok (pgrm,cmd) -> (pgrm,cmd)
+          Err (_) ->
+            ( Debug.log "invalid submit event" pgrm
+            , Cmd.none
+            )
+    Submit ->
+      let
+        _ = Debug.log "unexpected `Submit` event during kiosk mode" pgrm
+      in
+        ( pgrm, Cmd.none )
 
