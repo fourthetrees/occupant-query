@@ -52,12 +52,12 @@ update msg model =
         -- response from server.
         Recv rsp ->
           let
-            pgrm = case Comms.process_rsp Nothing rsp of
-              Just pgrm -> Run pgrm
+            (pgrm,conf) = case Comms.process_rsp Nothing model.conf rsp of
+              Just (pgrm,conf) -> ( Run pgrm , conf )
 
-              Nothing -> Init
+              Nothing -> ( Init , model.conf )
           in
-            ( { model | pgrm = pgrm }
+            ( { model | pgrm = pgrm , conf = conf }
             , Cmd.none              )
 
         -- all other messages are errors.
@@ -70,11 +70,11 @@ update msg model =
       case msg of
         Recv rsp ->
           let
-            updated = case Comms.process_rsp (Just pgrm) rsp of
-              Just pgrm -> Run pgrm
-              Nothing -> model.pgrm
+            (pgrm,conf) = case Comms.process_rsp (Just pgrm) model.conf rsp of
+              Just (pgrm,model.conf)-> ( Run pgrm , model.conf )
+              Nothing -> ( model.pgrm , model.conf )
           in
-            ( { model | pgrm = updated }
+            ( { model | pgrm = pgrm, conf = conf }
             , Cmd.none )
 
         User input ->

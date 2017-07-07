@@ -5,7 +5,7 @@ import Dict exposing (Dict)
 -- the model represents the state of the application at any given time.
 type alias Model =
   { pgrm : Proc Pgrm   -- state of the program
-  , conf : Config         -- configurations for app behavior
+  , conf : Config      -- configurations for app behavior
   }
 
 
@@ -14,7 +14,8 @@ type alias Model =
 type alias Config =
   { srvr : Server     -- callback uri
   , tick : Seconds    -- server comm interval
-  , mode : Mode
+  , code : Uid        -- the url id of the deployment
+  , mode : Mode       -- operating mode: Kiosk || Form
   }
 
 
@@ -27,6 +28,12 @@ type alias Pgrm =
   , arch : Archive    -- list of previous completed sessions.
   }
 
+-- an updated set of run values from the server.
+type alias Deployment =
+  { mode : Mode
+  , code : Uid
+  , pgrm : Survey
+  }
 
 -- mode of display for the running program.
 type Mode = Kiosk | Form
@@ -42,7 +49,7 @@ type Input = Select Selection | Submit
 
 
 -- enum representing the possible responses that can be recieved from server.
-type Rsp = Update ( Result Http.Error Survey ) | Upload ( Result Http.Error String )
+type Rsp = Update ( Result Http.Error Deployment ) | Upload ( Result Http.Error String )
 
 
 -- enum representing possible state-altering events.

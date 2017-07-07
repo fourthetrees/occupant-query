@@ -64,24 +64,24 @@ push_archive config arch =
 
 
 -- process a server response, possibly generating a `Pgrm`.
-process_rsp : Maybe Pgrm -> Rsp -> Maybe Pgrm
-process_rsp pgrm rsp = 
+process_rsp : Maybe Pgrm -> Config -> Rsp -> Maybe (Pgrm,Config)
+process_rsp pgrm conf rsp = 
   case pgrm of
     -- if `pgrm` exists, `rsp`.
     Just pgrm ->
       case rsp of
-        Update rsp ->
-          Just ( apply_update pgrm rsp )
+        Update deployment ->
+          Just ( apply_update pgrm conf rsp )
         
         Upload rsp ->
-          Just ( assess_upload pgrm rsp )
+          Just ( assess_upload pgrm rsp , conf )
 
     -- if no `pgrm` supplied, we are in `Init` case.
     Nothing ->
       case rsp of
         -- attempt to initialize the pgrm.
         Update rsp ->
-          initialize_pgrm rsp
+          initialize_pgrm conf rsp
         -- anything other than an update is an error.
         _  ->
           let _ = Debug.log "unexpected comms" rsp
@@ -89,30 +89,36 @@ process_rsp pgrm rsp =
 
 
 -- attempt to generate a new pgrm instance from a server response.
-initialize_pgrm : Result Http.Error Survey -> Maybe Pgrm
-initialize_pgrm result =
+initialize_pgrm : Config -> Result Http.Error Deployment -> Maybe (Pgrm,Config)
+initialize_pgrm conf result =
   case result of
-    Ok survey ->
-      Just
-        { spec = survey
-        , sess = Dict.empty
-        , arch = []
-        }
+    Ok spec ->
+      let
+        conf_new = { conf | mode = spec.mode , code = spec.code }
+        pgrm_new =
+          { spec = spec.pgrm
+          , sess = Dict.empty
+          , arch = []
+          }
+      in
+        Just ( pgrm_new , conf_new )
+        
     Err err ->
       let _ = Debug.log "http error" err
       in Nothing
 
 
 -- apply the new survey spec to `pgrm` if possible.
-apply_update : Pgrm -> Result Http.Error Survey -> Pgrm
-apply_update pgrm result =
+apply_update : Pgrm -> Config -> Result Http.Error Survey -> (Pgrm,Config)
+apply_update pgrm conf result =
   case result of
-    Ok(survey) ->
-      { pgrm | spec = survey , sess = Dict.empty }
-
+    Ok(spec) ->
+      ( { pgrm | spec = spec.pgmr , sess = Dict.empty }
+      , { conf | mode = spec.mode , code = spec.code  }
+      )
     Err(error) ->
       let _ = Debug.log "error: " error
-      in pgrm
+      in ( pgrm , conf )
 
 -- assess the result of an upload attempt, and dispose
 -- of the corresponding archive if able.
