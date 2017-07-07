@@ -27,7 +27,7 @@ parse_flags : Flags -> Config
 parse_flags flags =
   let
     conf : ( Mode -> Config )
-    conf = Config flags.srvr flags.tick
+    conf = Config flags.srvr flags.tick 0
   in
     if flags.mode < 1 then
       conf Form
@@ -71,11 +71,11 @@ update msg model =
       case msg of
         Recv rsp ->
           let
-            (pgrm,conf) = case Comms.process_rsp (Just pgrm) model.conf rsp of
-              Just (pgrm,model.conf)-> ( Run pgrm , model.conf )
+            (pgrm_new,conf_new) = case Comms.process_rsp (Just pgrm) model.conf rsp of
+              Just (pgrm,conf)-> ( Run pgrm , conf )
               Nothing -> ( model.pgrm , model.conf )
           in
-            ( { model | pgrm = pgrm, conf = conf }
+            ( { model | pgrm = pgrm_new , conf = conf_new }
             , Cmd.none )
 
         User input ->

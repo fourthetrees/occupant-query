@@ -52,12 +52,7 @@ type Input = Select Selection | Submit
 
 
 -- enum representing the possible responses that can be recieved from server.
-<<<<<<< HEAD
-type Rsp = Update ( Result Http.Error Deployment ) | Upload ( Result Http.Error String )
-=======
-type Rsp = Update ( Result Http.Error Survey ) | Upload ( Result Http.Error () )
->>>>>>> 7df548afb46a29e80386f7f7bd71489969186da2
-
+type Rsp = Update ( Result Http.Error Deployment ) | Upload ( Result Http.Error () )
 
 -- enum representing possible state-altering events.
 type Msg = User Input | Recv Rsp | Save Response | Set Page

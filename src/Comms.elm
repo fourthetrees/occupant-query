@@ -43,7 +43,7 @@ pull_survey config =
   in
     pull
       { send = config.srvr
-      , read = jd_survey
+      , read = jd_deployment
       , wrap = wrap
       }
 
@@ -71,7 +71,7 @@ process_rsp pgrm conf rsp =
     Just pgrm ->
       case rsp of
         Update deployment ->
-          Just ( apply_update pgrm conf rsp )
+          Just ( apply_update pgrm conf deployment )
         
         Upload rsp ->
           Just ( assess_upload pgrm rsp , conf )
@@ -109,11 +109,11 @@ initialize_pgrm conf result =
 
 
 -- apply the new survey spec to `pgrm` if possible.
-apply_update : Pgrm -> Config -> Result Http.Error Survey -> (Pgrm,Config)
+apply_update : Pgrm -> Config -> Result Http.Error Deployment -> (Pgrm,Config)
 apply_update pgrm conf result =
   case result of
     Ok(spec) ->
-      ( { pgrm | spec = spec.pgmr , sess = Dict.empty }
+      ( { pgrm | spec = spec.pgrm , sess = Dict.empty }
       , { conf | mode = spec.mode , code = spec.code  }
       )
     Err(error) ->
@@ -170,6 +170,20 @@ je_selection sel =
       , ( "opt" , opt )
       ]
 
+
+-- decodes a json string into a deployment spec.
+jd_deployment : Jd.Decoder Deployment
+jd_deployment =
+  let
+    mode = Jd.map (\ bool ->
+      case bool of
+        True -> Kiosk
+        False -> Form
+      )  ( Jd.field "is-kiosk" Jd.bool )
+    code = Jd.field "url-id" Jd.int
+    pgrm = Jd.field "survey" jd_survey
+  in
+    Jd.map3 Deployment mode code pgrm
 
 -- decodes a json string into a survey spec.
 jd_survey : Jd.Decoder Survey
